@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>免费 Markdown 转 Word 在线转换器 - MD Tools</title>
+  <meta name="description" content="免费在线 Markdown 转 Word 转换器。支持 .md 文件导入、实时预览、多种模板选择。100% 浏览器本地处理，保护您的隐私安全。">
+  <meta name="keywords" content="Markdown转Word, MD转DOCX, 在线转换, 免费工具, 本地处理">
+  <link rel="canonical" href="https://yourdomain.com/zh-cn/markdown-to-word/">
+  <!-- Google AdSense - 替换为您的 ID -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .navbar { background: white; border-bottom: 1px solid var(--border); padding: 12px 0; position: sticky; top: 0; z-index: 100; }
+    .navbar .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+    .navbar-brand { font-size: 20px; font-weight: 700; color: var(--primary); }
+    .navbar-nav { display: flex; gap: 20px; }
+    .navbar-nav a { color: var(--text-muted); font-size: 14px; }
+    .hero { padding: 40px 20px; text-align: center; background: white; }
+    .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+    .hero p { font-size: 16px; color: var(--text-muted); }
+    .workspace { max-width: 1400px; margin: 24px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 1024px) { .workspace { grid-template-columns: 1fr; } }
+    .panel { background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .panel-header { padding: 12px 16px; background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    .panel-body { padding: 16px; }
+    textarea { width: 100%; height: 500px; border: none; outline: none; resize: none; font-family: 'SF Mono', Consolas, monospace; font-size: 14px; line-height: 1.6; padding: 8px; }
+    .preview { min-height: 500px; line-height: 1.7; }
+    .preview h1, .preview h2, .preview h3 { margin: 16px 0 10px; }
+    .preview p { margin-bottom: 12px; }
+    .preview code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    .preview pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 6px; overflow-x: auto; margin: 12px 0; }
+    .preview pre code { background: none; padding: 0; color: inherit; }
+    .preview table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    .preview th, .preview td { border: 1px solid var(--border); padding: 8px 12px; }
+    .preview th { background: var(--bg); font-weight: 600; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: var(--bg); border: 1px solid var(--border); }
+    .ad-container { background: var(--bg); border: 2px dashed var(--border); padding: 20px; text-align: center; margin: 24px auto; max-width: 728px; min-height: 90px; }
+    .ad-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+    .seo-content { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .seo-content h2 { font-size: 22px; margin: 24px 0 12px; }
+    .seo-content p { font-size: 15px; line-height: 1.7; color: var(--text-muted); margin-bottom: 12px; }
+    .footer { background: white; border-top: 1px solid var(--border); padding: 40px 20px; margin-top: 60px; }
+    .footer .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; }
+    .footer h4 { font-size: 14px; margin-bottom: 12px; }
+    .footer a { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    .footer-bottom { text-align: center; padding-top: 24px; margin-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+    select { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">📄 MD Tools</a>
+      <div class="navbar-nav">
+        <a href="/zh-cn/markdown-to-word">MD 转 Word</a>
+        <a href="/zh-cn/markdown-to-pdf">MD 转 PDF</a>
+        <a href="/zh-cn/markdown-to-html">MD 转 HTML</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>免费 Markdown 转 Word 在线转换器</h1>
+    <p>将 Markdown 文档实时转换为专业的 Word 文档（.docx），支持多种模板选择</p>
+  </section>
+
+  <!-- 顶部广告 -->
+  <div class="ad-container">
+    <div class="ad-label">广告</div>
+    <!-- 在这里插入您的 Google AdSense 广告代码 -->
+    <p style="color: var(--text-muted); font-size: 13px;">Google AdSense 广告位（728x90）</p>
+  </div>
+
+  <div class="workspace">
+    <div class="panel">
+      <div class="panel-header">
+        <span>📝 Markdown 编辑器</span>
+        <div class="toolbar">
+          <button class="btn btn-secondary" onclick="loadExample()">加载示例</button>
+          <button class="btn btn-secondary" onclick="clearEditor()">清空</button>
+          <input type="file" id="fileInput" accept=".md,.markdown" style="display:none" onchange="loadFile(event)">
+          <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">📁 上传文件</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <textarea id="markdownInput" placeholder="在这里输入 Markdown 或上传 .md 文件..."></textarea>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span>👁️ Word 预览</span>
+        <div class="toolbar">
+          <select id="templateSelect" onchange="updatePreview()">
+            <option value="default">默认模板</option>
+            <option value="business">商务风格</option>
+            <option value="academic">学术风格</option>
+            <option value="minimal">极简风格</option>
+          </select>
+          <button class="btn btn-primary" onclick="downloadDocx()">⬇️ 下载 Word</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="preview" class="preview"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中部广告 -->
+  <div class="ad-container">
+    <div class="ad-label">广告</div>
+    <p style="color: var(--text-muted); font-size: 13px;">Google AdSense 广告位</p>
+  </div>
+
+  <!-- SEO 内容 -->
+  <section class="seo-content">
+    <h2>为什么选择我们的 Markdown 转 Word 工具？</h2>
+    <p>我们的在线转换器支持完整的 Markdown 语法，包括标题、表格、代码块、列表等。所有转换都在您的浏览器中本地完成，无需上传文件，保护您的隐私安全。</p>
+    
+    <h2>如何使用？</h2>
+    <p>1. 在左侧编辑器中输入 Markdown 文本或上传 .md 文件<br>
+       2. 右侧实时预览转换后的效果<br>
+       3. 选择合适的模板风格<br>
+       4. 点击下载按钮获取 Word 文档</p>
+
+    <h2>支持的 Markdown 语法</h2>
+    <p>标题、段落、粗体、斜体、代码块、表格、列表、引用、链接、图片等完整 GFM 语法。</p>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div>
+        <h4>转换工具</h4>
+        <a href="/zh-cn/markdown-to-word">MD 转 Word</a>
+        <a href="/zh-cn/markdown-to-pdf">MD 转 PDF</a>
+        <a href="/zh-cn/markdown-to-html">MD 转 HTML</a>
+      </div>
+      <div>
+        <h4>法律条款</h4>
+        <a href="/terms">服务条款</a>
+        <a href="/privacy">隐私政策</a>
+      </div>
+      <div>
+        <h4>联系我们</h4>
+        <a href="mailto:contact@mdtools.com">Email</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 MD Tools. 保留所有权利。
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    const input = document.getElementById('markdownInput');
+    const preview = document.getElementById('preview');
+
+    input.addEventListener('input', updatePreview);
+
+    function updatePreview() {
+      const md = input.value;
+      preview.innerHTML = marked.parse(md || '*在左侧输入 Markdown 开始转换...*');
+    }
+
+    function loadExample() {
+      input.value = `# 示例文档
+
+这是一个 **Markdown** 转 Word 的示例文档。
+
+## 表格示例
+
+| 功能 | 说明 |
+|------|------|
+| 实时预览 | 即时查看转换效果 |
+| 多种模板 | 商务、学术、极简等风格 |
+| 本地处理 | 文件不会上传到服务器 |
+
+## 代码示例
+
+\`\`\`javascript
+function hello() {
+  console.log('Hello, World!');
+}
+\`\`\`
+
+## 列表
+
+- 快速转换
+- 免费使用
+- 隐私安全
+
+> 这是一个引用块
+
+**祝您使用愉快！**`;
+      updatePreview();
+    }
+
+    function clearEditor() {
+      input.value = '';
+      updatePreview();
+    }
+
+    function loadFile(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          input.value = e.target.result;
+          updatePreview();
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function downloadDocx() {
+      const content = input.value || '<p>空文档</p>';
+      const html = \`
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+              xmlns:w='urn:schemas-microsoft-com:office:word' 
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Export HTML To Doc</title></head>
+        <body>\${marked.parse(content)}</body>
+        </html>
+      \`;
+      
+      const blob = new Blob(['\\ufeff', html], {
+        type: 'application/msword'
+      });
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'document.doc';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    updatePreview();
+  </script>
+</body>
+</html>
