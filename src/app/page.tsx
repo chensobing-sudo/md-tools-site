@@ -128,7 +128,7 @@ export default function Home() {
         </h2>
         <div className="faq-list">
           <div className="faq-item">
-            <div className="faq-question" onClick={() => this?.parentElement?.classList.toggle('open')}>
+            <div className="faq-question" onClick={(e) => e.currentTarget.parentElement?.classList.toggle('open')}>
               这些工具真的免费吗？
               <span>+</span>
             </div>
@@ -137,7 +137,7 @@ export default function Home() {
             </div>
           </div>
           <div className="faq-item">
-            <div className="faq-question" onClick={() => this?.parentElement?.classList.toggle('open')}>
+            <div className="faq-question" onClick={(e) => e.currentTarget.parentElement?.classList.toggle('open')}>
               我的文件安全吗？
               <span>+</span>
             </div>
@@ -146,7 +146,7 @@ export default function Home() {
             </div>
           </div>
           <div className="faq-item">
-            <div className="faq-question" onClick={() => this?.parentElement?.classList.toggle('open')}>
+            <div className="faq-question" onClick={(e) => e.currentTarget.parentElement?.classList.toggle('open')}>
               支持哪些 Markdown 语法？
               <span>+</span>
             </div>
