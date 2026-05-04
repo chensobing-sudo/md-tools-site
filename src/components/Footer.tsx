@@ -10,7 +10,7 @@ const toolLinks = [
 ]
 
 const resourceLinks = [
-  { href: '/blog', label: '博客' },
+  { href: 'https://specfit.kuakua.space/', label: '合规通项目' },
   { href: '/tutorials', label: '使用教程' },
   { href: '/faq', label: '常见问题' },
 ]
@@ -45,9 +45,15 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {resourceLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {link.label}
-                  </Link>
+                  {link.href.startsWith('http') ? (
+                    <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
