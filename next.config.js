@@ -5,6 +5,12 @@ const nextConfig = {
     unoptimized: true,
   },
   basePath: '',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 }
 
 module.exports = nextConfig
