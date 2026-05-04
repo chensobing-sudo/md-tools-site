@@ -145,39 +145,6 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
-/* 广告位 */
-.ad-container {
-  background: var(--bg-secondary);
-  border: 1px dashed var(--border-bright);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin: 24px 0;
-  text-align: center;
-  min-height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ad-container.top {
-  min-height: 90px;
-}
-
-.ad-container.sidebar {
-  min-height: 250px;
-}
-
-.ad-container.in-content {
-  min-height: 250px;
-}
-
-.ad-label {
-  font-size: 11px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 /* 页脚 */
 .footer {
   background: var(--bg-secondary);
@@ -338,7 +305,7 @@ a {
   margin-bottom: 8px;
 }
 
-/* FAQ 折叠 */
+/* FAQ */
 .faq-list {
   max-width: 800px;
   margin: 40px auto;
@@ -356,27 +323,15 @@ a {
   padding: 16px 20px;
   font-size: 15px;
   font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: background 0.15s;
-}
-
-.faq-question:hover {
   background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
 }
 
 .faq-answer {
-  padding: 0 20px 16px;
+  padding: 16px 20px;
   font-size: 14px;
   line-height: 1.7;
   color: var(--text-muted);
-  display: none;
-}
-
-.faq-item.open .faq-answer {
-  display: block;
 }
 
 /* 特性卡片网格 */

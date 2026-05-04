@@ -9,27 +9,30 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "^14.1.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "marked": "^11.1.1",
     "docx": "^8.5.0",
+    "file-saver": "^2.0.5",
     "html-to-docx": "^1.8.0",
     "js-yaml": "^4.1.0",
+    "marked": "^11.1.1",
+    "next": "^14.1.0",
     "prismjs": "^1.29.0",
-    "file-saver": "^2.0.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
     "rehype-highlight": "^7.0.0",
     "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.7",
+    "@types/js-yaml": "^4.0.9",
+    "@types/marked": "^5.0.2",
     "@types/node": "^20.11.0",
+    "@types/prismjs": "^1.26.3",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "typescript": "^5.3.0",
-    "@types/marked": "^5.0.2",
-    "@types/prismjs": "^1.26.3",
-    "@types/js-yaml": "^4.0.9",
-    "@types/file-saver": "^2.0.7"
+    "typescript": "^5.3.0"
+  },
+  "optionalDependencies": {
+    "jspdf": "^4.2.1"
   }
 }

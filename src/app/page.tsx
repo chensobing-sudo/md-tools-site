@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import AdUnit from '@/components/AdUnit'
 
 const tools = [
   {
@@ -55,11 +54,6 @@ export default function Home() {
           <p>快速、安全、免费！支持 Markdown、Word、PDF、HTML、YAML、JSON 等多种格式互转</p>
         </div>
       </section>
-
-      {/* 顶部广告 */}
-      <div className="container">
-        <AdUnit slot="1234567890" className="top" />
-      </div>
 
       {/* 工具列表 */}
       <section className="container" style={{ padding: '40px 20px' }}>
@@ -128,27 +122,24 @@ export default function Home() {
         </h2>
         <div className="faq-list">
           <div className="faq-item">
-            <div className="faq-question" onClick={(e) => e.currentTarget.parentElement?.classList.toggle('open')}>
+            <div className="faq-question">
               这些工具真的免费吗？
-              <span>+</span>
             </div>
             <div className="faq-answer">
               是的，所有工具都完全免费，没有使用次数限制，也不需要注册账号。
             </div>
           </div>
           <div className="faq-item">
-            <div className="faq-question" onClick={(e) => e.currentTarget.parentElement?.classList.toggle('open')}>
+            <div className="faq-question">
               我的文件安全吗？
-              <span>+</span>
             </div>
             <div className="faq-answer">
               非常安全！所有转换都在您的浏览器中本地完成，文件不会上传到任何服务器。
             </div>
           </div>
           <div className="faq-item">
-            <div className="faq-question" onClick={(e) => e.currentTarget.parentElement?.classList.toggle('open')}>
+            <div className="faq-question">
               支持哪些 Markdown 语法？
-              <span>+</span>
             </div>
             <div className="faq-answer">
               支持完整的 GFM（GitHub Flavored Markdown）语法，包括标题、表格、代码块、列表、引用等。
@@ -156,11 +147,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* 中部广告 */}
-      <div className="container">
-        <AdUnit slot="0987654321" className="in-content" />
-      </div>
 
       <Footer />
     </>
