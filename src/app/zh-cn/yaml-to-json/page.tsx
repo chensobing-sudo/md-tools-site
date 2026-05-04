@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export default function YamlToJson() {
@@ -375,8 +373,6 @@ monitoring:
 
   return (
     <>
-      <Navbar />
-
       {/* 工具头部 */}
       <section className="tool-header">
         <div className="container">
@@ -738,8 +734,6 @@ test:
           </ul>
         </div>
       </section>
-
-      <Footer />
     </>
   )
 }

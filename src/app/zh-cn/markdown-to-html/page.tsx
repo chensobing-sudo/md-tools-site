@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export default function MarkdownToHtml() {
@@ -318,8 +316,6 @@ userService.addUser({
 
   return (
     <>
-      <Navbar />
-
       {/* 工具头部 */}
       <section className="tool-header">
         <div className="container">
@@ -595,8 +591,6 @@ userService.addUser({
           </ol>
         </div>
       </section>
-
-      <Footer />
     </>
   )
 }

@@ -82,7 +82,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="mailto:contact@mdtools.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a href="mailto:plmm365@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   联系我们
                 </a>
               </li>

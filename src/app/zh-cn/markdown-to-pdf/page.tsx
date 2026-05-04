@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import { useState, useRef, useMemo } from 'react'
 import Link from 'next/link'
 
 export default function MarkdownToPdf() {
@@ -60,8 +58,8 @@ export default function MarkdownToPdf() {
 ## 结论与建议
 
 > **结论**: 项目按计划顺利进行，核心功能已基本完成。
-> 
-> **建议**: 
+>
+> **建议**:
 > 1. 继续完善测试覆盖
 > 2. 加强性能监控
 > 3. 准备用户培训材料
@@ -73,6 +71,8 @@ export default function MarkdownToPdf() {
   const [orientation, setOrientation] = useState('portrait')
   const [includeHeader, setIncludeHeader] = useState(true)
   const [includeFooter, setIncludeFooter] = useState(true)
+  const [fontSize, setFontSize] = useState('normal')
+  const [lineSpacing, setLineSpacing] = useState('1.5')
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isConverting, setIsConverting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -83,6 +83,25 @@ export default function MarkdownToPdf() {
     { id: 'Legal', name: 'Legal', desc: '法律文档 (216×356mm)' },
     { id: 'A5', name: 'A5', desc: '小册子尺寸 (148×210mm)' },
   ]
+
+  // 简单的 Markdown 转 HTML 预览
+  const previewHtml = useMemo(() => {
+    let html = markdown
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+      .split('\n\n').map(p => {
+        const trimmed = p.trim()
+        if (!trimmed) return ''
+        if (trimmed.startsWith('<h') || trimmed.startsWith('<pre') || trimmed.startsWith('<table')) return trimmed
+        return `<p>${trimmed.replace(/\n/g, '<br/>')}</p>`
+      }).join('\n')
+    return html
+  }, [markdown])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -98,27 +117,24 @@ export default function MarkdownToPdf() {
 
   const handleConvert = async () => {
     setIsConverting(true)
-    
+
     try {
-      // 验证文档
       const { validateMarkdownForPdf } = await import('@/lib/pdf-generator')
       const validation = validateMarkdownForPdf(markdown)
-      
+
       if (!validation.valid) {
         alert(`文档验证失败: ${validation.errors.join(', ')}`)
         return
       }
-      
+
       if (validation.warnings.length > 0) {
         console.log('文档警告:', validation.warnings)
       }
-      
-      // 模拟转换过程
+
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // 使用打印功能生成 PDF
+
       const { generatePdfWithPrint, estimatePdfPages } = await import('@/lib/pdf-generator')
-      
+
       const options = {
         title: `Markdown 转换文档 - ${new Date().toLocaleDateString('zh-CN')}`,
         author: 'MD Tools 用户',
@@ -129,13 +145,10 @@ export default function MarkdownToPdf() {
         includeFooter,
         theme: isDarkMode ? 'dark' : 'light' as any
       }
-      
-      // 估计页数
+
       const estimatedPages = estimatePdfPages(markdown, options)
-      
-      // 生成 PDF
       await generatePdfWithPrint(markdown, options)
-      
+
       alert(`PDF 生成成功！预计 ${estimatedPages} 页。请使用浏览器的打印功能保存为 PDF。`)
     } catch (error) {
       console.error('转换失败:', error)
@@ -229,8 +242,6 @@ npm run dev
 
   return (
     <>
-      <Navbar />
-
       {/* 工具头部 */}
       <section className="tool-header">
         <div className="container">
@@ -295,140 +306,215 @@ npm run dev
             </div>
           </div>
 
-          {/* 右侧：输出区 */}
+          {/* 右侧：输出预览 */}
           <div className="tool-panel">
             <div className="tool-panel-header">
-              <span>PDF 输出设置</span>
+              <span>输出预览</span>
             </div>
             <div className="tool-panel-body">
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                  页面设置
+              <div
+                style={{
+                  width: '100%',
+                  height: '400px',
+                  padding: '16px',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  overflow: 'auto',
+                  background: 'var(--bg-card)',
+                  color: 'var(--text)',
+                  fontSize: '14px',
+                  lineHeight: '1.8',
+                }}
+                dangerouslySetInnerHTML={{ __html: previewHtml }}
+              />
+              <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-dim)' }}>
+                实时预览 Markdown 渲染效果
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 输出设置 - 下拉菜单形式 */}
+      <div className="container" style={{ marginTop: 24 }}>
+        <div className="tool-panel">
+          <div className="tool-panel-header">
+            <span>输出设置</span>
+          </div>
+          <div className="tool-panel-body">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-end' }}>
+              {/* 页面尺寸 */}
+              <div style={{ flex: '1 1 180px', minWidth: 160 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                  页面尺寸
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 4 }}>页面尺寸</div>
-                    <select 
-                      value={pageSize}
-                      onChange={(e) => setPageSize(e.target.value)}
-                      style={{ width: '100%', padding: '8px', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                    >
-                      {pageSizes.map(size => (
-                        <option key={size.id} value={size.id}>{size.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 4 }}>页面方向</div>
-                    <select 
-                      value={orientation}
-                      onChange={(e) => setOrientation(e.target.value)}
-                      style={{ width: '100%', padding: '8px', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                    >
-                      <option value="portrait">纵向</option>
-                      <option value="landscape">横向</option>
-                    </select>
-                  </div>
-                </div>
-                <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-dim)' }}>
-                  {pageSizes.find(s => s.id === pageSize)?.desc}
-                </div>
+                <select
+                  value={pageSize}
+                  onChange={(e) => setPageSize(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text)',
+                    fontSize: 14,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {pageSizes.map(size => (
+                    <option key={size.id} value={size.id}>{size.name} — {size.desc}</option>
+                  ))}
+                </select>
               </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+              {/* 页面方向 */}
+              <div style={{ flex: '0 1 150px', minWidth: 130 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                  页面方向
+                </label>
+                <select
+                  value={orientation}
+                  onChange={(e) => setOrientation(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text)',
+                    fontSize: 14,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="portrait">纵向</option>
+                  <option value="landscape">横向</option>
+                </select>
+              </div>
+
+              {/* 字体大小 */}
+              <div style={{ flex: '0 1 150px', minWidth: 130 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                  字体大小
+                </label>
+                <select
+                  value={fontSize}
+                  onChange={(e) => setFontSize(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text)',
+                    fontSize: 14,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="small">小 (10pt)</option>
+                  <option value="normal">正常 (12pt)</option>
+                  <option value="large">大 (14pt)</option>
+                </select>
+              </div>
+
+              {/* 行间距 */}
+              <div style={{ flex: '0 1 150px', minWidth: 130 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                  行间距
+                </label>
+                <select
+                  value={lineSpacing}
+                  onChange={(e) => setLineSpacing(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text)',
+                    fontSize: 14,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="single">单倍行距</option>
+                  <option value="1.5">1.5 倍行距</option>
+                  <option value="double">双倍行距</option>
+                </select>
+              </div>
+
+              {/* 文档元素 */}
+              <div style={{ flex: '1 1 200px', minWidth: 180 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
                   文档元素
                 </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
                     <input
                       type="checkbox"
                       checked={includeHeader}
                       onChange={(e) => setIncludeHeader(e.target.checked)}
                     />
-                    <span>包含页眉（文档标题）</span>
+                    页眉
                   </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
                     <input
                       type="checkbox"
                       checked={includeFooter}
                       onChange={(e) => setIncludeFooter(e.target.checked)}
                     />
-                    <span>包含页脚（页码和日期）</span>
+                    页脚
                   </label>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                  样式选项
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 4 }}>字体大小</div>
-                    <select style={{ width: '100%', padding: '8px', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-                      <option value="small">小 (10pt)</option>
-                      <option value="normal">正常 (12pt)</option>
-                      <option value="large">大 (14pt)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 4 }}>行间距</div>
-                    <select style={{ width: '100%', padding: '8px', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-                      <option value="single">单倍行距</option>
-                      <option value="1.5">1.5 倍行距</option>
-                      <option value="double">双倍行距</option>
-                    </select>
-                  </div>
-                </div>
-                <div style={{ marginTop: 12 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
                     <input
                       type="checkbox"
                       checked={isDarkMode}
                       onChange={(e) => setIsDarkMode(e.target.checked)}
                     />
-                    <span>深色模式</span>
+                    深色
                   </label>
                 </div>
               </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+              {/* 文档统计 */}
+              <div style={{ flex: '1 1 200px', minWidth: 180 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
                   文档统计
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, textAlign: 'center' }}>
-                  <div className="card" style={{ padding: '12px 8px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{markdown.length}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>字符数</div>
-                  </div>
-                  <div className="card" style={{ padding: '12px 8px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{markdown.split(/\s+/).length}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>单词数</div>
-                  </div>
-                  <div className="card" style={{ padding: '12px 8px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{markdown.split('\n').length}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>行数</div>
-                  </div>
-                  <div className="card" style={{ padding: '12px 8px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{pageSize}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>页面尺寸</div>
-                  </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {[
+                    { label: '字符', value: markdown.length },
+                    { label: '单词', value: markdown.split(/\s+/).length },
+                    { label: '行数', value: markdown.split('\n').length },
+                  ].map(s => (
+                    <div key={s.label} style={{
+                      flex: 1,
+                      padding: '8px 4px',
+                      textAlign: 'center',
+                      background: 'var(--bg-secondary)',
+                      borderRadius: 'var(--radius)',
+                    }}>
+                      <div style={{ fontSize: 16, fontWeight: 700 }}>{s.value}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>{s.label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <button
-                onClick={handleConvert}
-                disabled={isConverting || !markdown.trim()}
-                className="btn btn-primary"
-                style={{ width: '100%', padding: '12px', fontSize: 16 }}
-              >
-                {isConverting ? '生成中...' : '生成 PDF 文档'}
-              </button>
-
-              <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-dim)', textAlign: 'center' }}>
-                使用浏览器打印功能保存为 PDF，文档不会上传到服务器
+              {/* 转换按钮 */}
+              <div style={{ flex: '0 0 auto' }}>
+                <button
+                  onClick={handleConvert}
+                  disabled={isConverting || !markdown.trim()}
+                  className="btn btn-primary"
+                  style={{ padding: '10px 28px', fontSize: 15, whiteSpace: 'nowrap' }}
+                >
+                  {isConverting ? '生成中...' : '生成 PDF 文档'}
+                </button>
               </div>
+            </div>
+
+            <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-dim)', textAlign: 'center' }}>
+              使用浏览器打印功能保存为 PDF，文档不会上传到服务器
             </div>
           </div>
         </div>
@@ -438,7 +524,7 @@ npm run dev
       <section className="seo-content">
         <div className="container">
           <h2>Markdown 转 PDF 使用指南</h2>
-          
+
           <h3>为什么选择 PDF 格式？</h3>
           <p>
             PDF（便携式文档格式）是一种广泛使用的文档格式，具有以下优点：
@@ -487,8 +573,6 @@ npm run dev
           </ul>
         </div>
       </section>
-
-      <Footer />
     </>
   )
 }

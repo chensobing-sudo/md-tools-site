@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import { useState, useRef, useMemo } from 'react'
 import Link from 'next/link'
 
 export default function MarkdownToWord() {
@@ -48,6 +46,8 @@ console.log(greet('World'))
 > 提示：所有转换都在浏览器本地完成，确保您的数据安全。
 `)
   const [template, setTemplate] = useState('business')
+  const [orientation, setOrientation] = useState('portrait')
+  const [margin, setMargin] = useState('normal')
   const [isConverting, setIsConverting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -57,6 +57,30 @@ console.log(greet('World'))
     { id: 'minimal', name: '极简模板', desc: '简洁干净的样式' },
     { id: 'creative', name: '创意模板', desc: '设计感强的样式' },
   ]
+
+  // 简单的 Markdown 转 HTML 预览
+  const previewHtml = useMemo(() => {
+    let html = markdown
+      // 标题
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      // 粗体和斜体
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      // 行内代码
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      // 链接
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+      // 换行转段落
+      .split('\n\n').map(p => {
+        const trimmed = p.trim()
+        if (!trimmed) return ''
+        if (trimmed.startsWith('<h') || trimmed.startsWith('<pre') || trimmed.startsWith('<table')) return trimmed
+        return `<p>${trimmed.replace(/\n/g, '<br/>')}</p>`
+      }).join('\n')
+    return html
+  }, [markdown])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -72,42 +96,34 @@ console.log(greet('World'))
 
   const handleConvert = async () => {
     setIsConverting(true)
-    
+
     try {
-      // 模拟转换过程
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // 使用工具函数生成 DOCX
+
       const { generateDocx, downloadDocx, estimateDocxPages, validateMarkdownForDocx } = await import('@/lib/docx-generator')
-      
-      // 验证文档
+
       const validation = validateMarkdownForDocx(markdown)
       if (!validation.valid) {
         alert(`文档验证失败: ${validation.errors.join(', ')}`)
         return
       }
-      
+
       if (validation.warnings.length > 0) {
         console.log('文档警告:', validation.warnings)
       }
-      
+
       const options = {
         template: template as any,
         title: `Markdown 转换文档 - ${new Date().toLocaleDateString('zh-CN')}`,
         author: 'MD Tools 用户',
         description: '由 MD Tools 生成的 Word 文档'
       }
-      
-      // 估计页数
+
       const estimatedPages = estimateDocxPages(markdown, options)
-      
-      // 生成 DOCX
       const docxBlob = await generateDocx(markdown, options)
-      
-      // 下载文档
       const filename = `markdown-converted-${new Date().getTime()}.docx`
       downloadDocx(docxBlob, filename)
-      
+
       alert(`Word 文档生成成功！预计 ${estimatedPages} 页。`)
     } catch (error) {
       console.error('转换失败:', error)
@@ -165,8 +181,6 @@ console.log(greet('World'))
 
   return (
     <>
-      <Navbar />
-
       {/* 工具头部 */}
       <section className="tool-header">
         <div className="container">
@@ -231,104 +245,157 @@ console.log(greet('World'))
             </div>
           </div>
 
-          {/* 右侧：输出区 */}
+          {/* 右侧：输出预览 + 设置 */}
           <div className="tool-panel">
             <div className="tool-panel-header">
-              <span>Word 输出设置</span>
+              <span>输出预览</span>
             </div>
             <div className="tool-panel-body">
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                  选择模板
+              <div
+                style={{
+                  width: '100%',
+                  height: '400px',
+                  padding: '16px',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  overflow: 'auto',
+                  background: 'var(--bg-card)',
+                  color: 'var(--text)',
+                  fontSize: '14px',
+                  lineHeight: '1.8',
+                }}
+                dangerouslySetInnerHTML={{ __html: previewHtml }}
+              />
+              <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-dim)' }}>
+                实时预览 Markdown 渲染效果
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 输出设置 - 下拉菜单形式 */}
+      <div className="container" style={{ marginTop: 24 }}>
+        <div className="tool-panel">
+          <div className="tool-panel-header">
+            <span>输出设置</span>
+          </div>
+          <div className="tool-panel-body">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-end' }}>
+              {/* 模板选择 */}
+              <div style={{ flex: '1 1 200px', minWidth: 180 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                  文档模板
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-                  {templates.map((t) => (
-                    <label
-                      key={t.id}
-                      style={{
-                        padding: '12px',
-                        border: `2px solid ${template === t.id ? 'var(--primary)' : 'var(--border)'}`,
-                        borderRadius: 'var(--radius)',
-                        cursor: 'pointer',
-                        background: template === t.id ? 'var(--bg-secondary)' : 'var(--bg-card)',
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="template"
-                        value={t.id}
-                        checked={template === t.id}
-                        onChange={(e) => setTemplate(e.target.value)}
-                        style={{ marginRight: 8 }}
-                      />
-                      <div>
-                        <div style={{ fontWeight: 600 }}>{t.name}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>{t.desc}</div>
-                      </div>
-                    </label>
+                <select
+                  value={template}
+                  onChange={(e) => setTemplate(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text)',
+                    fontSize: 14,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {templates.map(t => (
+                    <option key={t.id} value={t.id}>{t.name} — {t.desc}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 页面方向 */}
+              <div style={{ flex: '0 1 160px', minWidth: 140 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                  页面方向
+                </label>
+                <select
+                  value={orientation}
+                  onChange={(e) => setOrientation(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text)',
+                    fontSize: 14,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="portrait">纵向</option>
+                  <option value="landscape">横向</option>
+                </select>
+              </div>
+
+              {/* 页边距 */}
+              <div style={{ flex: '0 1 160px', minWidth: 140 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                  页边距
+                </label>
+                <select
+                  value={margin}
+                  onChange={(e) => setMargin(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text)',
+                    fontSize: 14,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="normal">正常</option>
+                  <option value="narrow">窄边距</option>
+                  <option value="wide">宽边距</option>
+                </select>
+              </div>
+
+              {/* 文档统计 */}
+              <div style={{ flex: '1 1 200px', minWidth: 180 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                  文档统计
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {[
+                    { label: '字符', value: markdown.length },
+                    { label: '单词', value: markdown.split(/\s+/).length },
+                    { label: '行数', value: markdown.split('\n').length },
+                  ].map(s => (
+                    <div key={s.label} style={{
+                      flex: 1,
+                      padding: '8px 4px',
+                      textAlign: 'center',
+                      background: 'var(--bg-secondary)',
+                      borderRadius: 'var(--radius)',
+                    }}>
+                      <div style={{ fontSize: 16, fontWeight: 700 }}>{s.value}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>{s.label}</div>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                  文档设置
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 4 }}>页面方向</div>
-                    <select style={{ width: '100%', padding: '8px', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-                      <option value="portrait">纵向</option>
-                      <option value="landscape">横向</option>
-                    </select>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 4 }}>页边距</div>
-                    <select style={{ width: '100%', padding: '8px', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-                      <option value="normal">正常</option>
-                      <option value="narrow">窄边距</option>
-                      <option value="wide">宽边距</option>
-                    </select>
-                  </div>
-                </div>
+              {/* 转换按钮 */}
+              <div style={{ flex: '0 0 auto' }}>
+                <button
+                  onClick={handleConvert}
+                  disabled={isConverting || !markdown.trim()}
+                  className="btn btn-primary"
+                  style={{ padding: '10px 28px', fontSize: 15, whiteSpace: 'nowrap' }}
+                >
+                  {isConverting ? '转换中...' : '生成 Word 文档'}
+                </button>
               </div>
+            </div>
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                  转换统计
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, textAlign: 'center' }}>
-                  <div className="card" style={{ padding: '12px 8px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{markdown.length}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>字符数</div>
-                  </div>
-                  <div className="card" style={{ padding: '12px 8px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{markdown.split(/\s+/).length}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>单词数</div>
-                  </div>
-                  <div className="card" style={{ padding: '12px 8px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{markdown.split('\n').length}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>行数</div>
-                  </div>
-                  <div className="card" style={{ padding: '12px 8px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{template}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>模板</div>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={handleConvert}
-                disabled={isConverting || !markdown.trim()}
-                className="btn btn-primary"
-                style={{ width: '100%', padding: '12px', fontSize: 16 }}
-              >
-                {isConverting ? '转换中...' : '生成 Word 文档 (.docx)'}
-              </button>
-
-              <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-dim)', textAlign: 'center' }}>
-                转换过程在浏览器本地完成，文件不会上传到服务器
-              </div>
+            <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-dim)', textAlign: 'center' }}>
+              转换过程在浏览器本地完成，文件不会上传到服务器
             </div>
           </div>
         </div>
@@ -338,7 +405,7 @@ console.log(greet('World'))
       <section className="seo-content">
         <div className="container">
           <h2>Markdown 转 Word 使用指南</h2>
-          
+
           <h3>什么是 Markdown？</h3>
           <p>
             Markdown 是一种轻量级标记语言，使用简单的符号（如 #、*、- 等）来格式化文本。
@@ -374,8 +441,6 @@ console.log(greet('World'))
           </p>
         </div>
       </section>
-
-      <Footer />
     </>
   )
 }
